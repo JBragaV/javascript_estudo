@@ -1,2 +1,3 @@
-# javascript_estudo
-Repositório de estudo JavaScript Básico
+# Repositório JavaScript Básico
+
+Esse repositório é destinado ao estudo de JS Básico.
