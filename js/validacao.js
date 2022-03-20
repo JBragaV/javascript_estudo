@@ -76,35 +76,45 @@ function maiorQueDezoito(data){
 
 function verificaCpf(input){
     const cpfFormatado = input.value.replace(/\D/g, "");
-    console.log(cpfFormatado);
     let mensagem = "";
-    if(!checaCpfRepetido(cpfFormatado)){
+    const multiplicador = 10;
+    if(!checaCpfRepetido(cpfFormatado) || !cpfValido(cpfFormatado, multiplicador)){
         mensagem = "O CPF informado é inválido!!!";
-    }else{
-        validaCPF(cpfFormatado);
     }
     input.setCustomValidity(mensagem)
 };
 
 function checaCpfRepetido(cpfFormatado){
-    let cpfValido = true;
+    let valido = true;
     const numerosCpfInput = cpfFormatado.split("");
     const numerosIguaisCpf = new Set(numerosCpfInput);
-    if(numerosIguaisCpf.size == 1) cpfValido = false;
-    console.log(cpfValido);
-    return cpfValido;
+    if(numerosIguaisCpf.size == 1) valido = false;
+    return valido;
 };
 
-function validaCPF(cpf){
-    let multiplicador = 10;
-    const listaNumerosCpf = cpf.split("");
-    digitoVerificadorCpf(listaNumerosCpf, multiplicador)
-};
-
-function digitoVerificadorCpf(cpf, multiplicador){
+function cpfValido(cpf, multiplicador){
+    if(multiplicador == 12) return true;
+    console.log(multiplicador)
+    let multiplicadorInicial = multiplicador;
     let soma = 0;
-    for(let i = 0; i < 9; i++){
-        soma += cpf[i] * (multiplicador-1)
-        console.log(multiplicador-i);
+    let listaNumerosCPF = cpf.substring(0, multiplicador-1).split("");
+    let digitoCpfUsuario = cpf[multiplicador-1];
+    for(let contador = 0; multiplicadorInicial > 1; multiplicadorInicial--){
+        soma += listaNumerosCPF[contador] * multiplicadorInicial;
+        contador++;
+    };
+    if(calculaDigito(soma) == digitoCpfUsuario){
+        return cpfValido(cpf, multiplicador+1);
     }
-}
+    return false;
+};
+
+function calculaDigito(soma){
+    let digito = 0;
+    let resto = soma % 11;
+    if(resto > 1){
+        digito = 11 - resto;
+    }
+    return digito;
+};
+
