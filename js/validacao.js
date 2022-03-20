@@ -17,7 +17,8 @@ export function valida(input){
 
 const validadores = {
     dataNascimento: input => validaDataNascimento(input),
-    cpf: input => verificaCpf(input)
+    cpf: input => verificaCpf(input),
+    cep: input => verificaCep(input)
 };
 
 const mensagensErro = {
@@ -38,7 +39,15 @@ const mensagensErro = {
     },
     cpf: {
         valueMissing: "O campo CPF nãp pode estar vazio",
-        customError: "O CPF informado não é válido"
+        customError: "O CPF informado não é válido",
+    },
+    cep: {
+        valueMissing: "O campo CEP não pode estar vazio",
+        patternMismatch: "O CEP informado não é válido",
+        customError: "Não foi possível buscar o cep informado"
+    },
+    preco:{
+        valueMissing: "O campo não pode estar vazio"
     }
 };
 
@@ -75,6 +84,7 @@ function maiorQueDezoito(data){
 };
 
 function verificaCpf(input){
+    console.log(input.validity)
     const cpfFormatado = input.value.replace(/\D/g, "");
     let mensagem = "";
     const multiplicador = 10;
@@ -118,3 +128,43 @@ function calculaDigito(soma){
     return digito;
 };
 
+function verificaCep(input){
+    prencheCamposCep()
+    let cep = input.value.replace(/\D/g, "");
+    const urlCep = `https://cep.awesomeapi.com.br/json/${cep}`;
+    const options = {
+        method: 'get',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json;charset=utf-8'
+        }
+    }
+    if(!input.validity.patternMismatch && !input.validity.valueMissing){
+        fetch(urlCep, options).then(
+            response => {
+                return response.json();
+            }
+        ).then(data => {
+            if(data.status){
+                input.setCustomValidity("Não foi possível buscar o cep informado");
+                return;
+            }
+            input.setCustomValidity("");
+            prencheCamposCep(data)
+        })
+    }
+}
+
+function prencheCamposCep(data=""){
+    const logradouro = document.querySelector("#logradouro");
+    const cidade = document.querySelector("#cidade");
+    const estado = document.querySelector("#estado");
+    logradouro.value = ""
+    cidade.value = ""
+    estado.value = ""
+    if(data){
+        logradouro.value = data.address
+        cidade.value = data.city
+        estado.value = data.state
+    }
+}
